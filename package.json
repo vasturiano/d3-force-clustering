@@ -1,6 +1,6 @@
 {
   "name": "d3-force-clustering",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A clustering attraction force to group nodes for the d3-force simulation engine.",
   "keywords": [
     "d3",
