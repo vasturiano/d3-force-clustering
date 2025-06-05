@@ -11,13 +11,16 @@
   import { forceCollide } from 'https://esm.sh/d3-force';
   import d3ForcePod from 'https://esm.sh/d3-force-pod';
 
-
   const MAX_R = 15;
   const MAX_NODES_PER_CLUSTER = 100;
   const CLUSTER_COLORS = ['red', 'green', 'yellow', 'blue', 'purple', 'pink', 'brown', 'black'];
 
-  const canvasCenter = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  const clusterForce = forceClustering()
+    .distanceMin(MAX_R)
+    .strength(0.25)
+    .weight(node => node.r**2);
 
+  const canvasCenter = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   const nodes = [...new Array(CLUSTER_COLORS.length)]
     .map((_, clusterIdx) => [...new Array(Math.ceil(Math.random() * MAX_NODES_PER_CLUSTER))]
       .map(() => ({
@@ -27,20 +30,14 @@
       }))
     ).flat();
 
-  const simulationPod = new d3ForcePod(document.body);
+  const simulationPod = new d3ForcePod(document.body)
+    .nodes(nodes)
+    .nodeColor(node => CLUSTER_COLORS[+node.cluster])
+    .addForce(clusterForce)
+    .addForce(forceCollide(d => d.r));
 
   simulationPod.simulation()
     .alphaDecay(0.03)
     .velocityDecay(0.1);
-
-  simulationPod
-    .nodes(nodes)
-    .nodeColor(node => CLUSTER_COLORS[+node.cluster])
-    .addForce(forceClustering()
-      .minDistance(MAX_R)
-      .strength(0.25)
-      .weight(node => node.r**2)
-    )
-    .addForce(forceCollide(d => d.r));
 </script>
 </body>

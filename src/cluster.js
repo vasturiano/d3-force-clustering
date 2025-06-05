@@ -3,8 +3,9 @@ export default function(clusterId = (node => node.cluster)) {
     nodes = [],
     weight = constant(1),            // accessor: node weight to calculate cluster centroid
     strength = constant(0.2),        // accessor: attraction strength per cluster (clusterId and nodes are included as arguments)
-    minDistance = 0,
-    clusterNodes = new Map();
+    distanceMin = 0;
+
+  const clusterNodes = new Map();
 
   function force(alpha) {
     const centroids = new Map([...clusterNodes.entries()].map(([cluster, nodes]) => [cluster, getCentroid(nodes, weight, nDim)]));
@@ -21,7 +22,7 @@ export default function(clusterId = (node => node.cluster)) {
 
       const d = dims.map(dim => centroid[dim] - node[dim]);
 
-      if (calcDist(...d) <= minDistance) return; // Too close to centroid
+      if (calcDist(...d) <= distanceMin) return; // Too close to centroid
 
       const acceleration = strengths.get(cluster) * alpha;
 
@@ -59,8 +60,8 @@ export default function(clusterId = (node => node.cluster)) {
     return arguments.length ? (strength = typeof _ === 'function' ? _ : constant(+_), force) : strength;
   };
 
-  force.minDistance = function(_) {
-    return arguments.length ? (minDistance = _, force) : minDistance;
+  force.distanceMin = function(_) {
+    return arguments.length ? (distanceMin = _, force) : distanceMin;
   };
 
   return force;
